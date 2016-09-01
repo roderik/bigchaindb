@@ -321,7 +321,7 @@ class Bigchain(object):
             return None
 
     def get_owned_ids(self, owner):
-        """Retrieve a list of `txids` that can we used has inputs.
+        """Retrieve a list of `txids` that can be used has inputs.
 
         Args:
             owner (str): base58 encoded public key.

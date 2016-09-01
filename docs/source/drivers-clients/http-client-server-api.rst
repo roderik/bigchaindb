@@ -11,8 +11,6 @@ but that address can be changed by changing the "API endpoint" configuration set
 
 There are other configuration settings related to the web server (serving the HTTP API). In particular, the default is for the web server socket to bind to `localhost:9984` but that can be changed (e.g. to `0.0.0.0:9984`). For more details, see the "server" settings ("bind", "workers" and "threads") in :doc:`the section about BigchainDB Configuration Settings <../server-reference/configuration>`.
 
-The HTTP API currently exposes two endpoints, one to get information about a specific transaction, and one to push a new transaction to the BigchainDB cluster.
-
 .. http:get:: /transactions/{tx_id}
 
    Get the transaction with the ID ``tx_id``.
@@ -81,39 +79,6 @@ The HTTP API currently exposes two endpoints, one to get information about a spe
       }
 
    :statuscode 200: A transaction with that ID was found.
-   :statuscode 404: A transaction with that ID was not found.
-
-
-.. http:get:: /transactions/{tx_id}/status
-
-   Get the status of a transaction with the ID ``tx_id``.
-
-   This endpoint returns the status of a transaction if exists.
-
-   Possible values are ``valid``, ``invalid``, ``undecided`` or ``backlog``.
-
-   :param tx_id: transaction ID
-   :type tx_id: hex string
-
-   **Example request**:
-
-   .. sourcecode:: http
-
-      GET /transactions/7ad5a4b83bc8c70c4fd7420ff3c60693ab8e6d0e3124378ca69ed5acd2578792/status HTTP/1.1
-      Host: example.com
-
-   **Example response**:
-
-   .. sourcecode:: http
-
-      HTTP/1.1 200 OK
-      Content-Type: application/json
-
-      {
-        "status": "valid"
-      }
-
-   :statuscode 200: A transaction with that ID was found and the status is returned.
    :statuscode 404: A transaction with that ID was not found.
 
 .. http:post:: /transactions/
@@ -253,3 +218,65 @@ The HTTP API currently exposes two endpoints, one to get information about a spe
        tx = b.sign_transaction(tx_unsigned, my_privkey)
 
    More information on generating transactions can be found in the `Python server API examples <python-server-api-examples.html>`_
+
+.. http:get:: /transactions/{tx_id}/status
+
+   Get the status of a transaction with the ID ``tx_id``.
+
+   This endpoint returns the status of a transaction if exists.
+
+   Possible values are ``valid``, ``invalid``, ``undecided`` or ``backlog``.
+
+   :param tx_id: transaction ID
+   :type tx_id: hex string
+
+   **Example request**:
+
+   .. sourcecode:: http
+
+      GET /transactions/7ad5a4b83bc8c70c4fd7420ff3c60693ab8e6d0e3124378ca69ed5acd2578792/status HTTP/1.1
+      Host: example.com
+
+   **Example response**:
+
+   .. sourcecode:: http
+
+      HTTP/1.1 200 OK
+      Content-Type: application/json
+
+      {
+        "status": "valid"
+      }
+
+   :statuscode 200: A transaction with that ID was found and the status is returned.
+   :statuscode 404: A transaction with that ID was not found.
+
+
+.. http:get:: /transactions/unspents/{owner_id}
+
+   Get a list of unspent transactions of an owner with public key ``owner_id``.
+
+   :param owner_id: public key of the owner
+   :type owner_id: base58 string
+
+   **Example request**:
+
+   .. sourcecode:: http
+
+      GET /transactions/unspents/JEAkEJqLbbgDRAtMm8YAjGp759Aq2qTn9eaEHUj2XePE HTTP/1.1
+      Host: example.com
+
+   **Example response**:
+
+   .. sourcecode:: http
+
+      HTTP/1.1 200 OK
+      Content-Type: application/json
+
+      [
+         {"cid": 0, "txid": "91ccac5037ed09332473f6e08a4b57260ac677ddb5985ac37b9a42ca21979cf6"},
+         {"cid": 0, "txid": "03aa60ae9acde5ede7c8c6fc5efe23c61bfd3d576d69ba425f0a718120fa2a04"},
+         {"cid": 0, "txid": "143a086e7888d32a81753e3842989c006948c639bbf6edd228bf95389b1e0af9"}
+      ]
+
+   :statuscode 200: A list of transaction ids or an empty list was returned.
