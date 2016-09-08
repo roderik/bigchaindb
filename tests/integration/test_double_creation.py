@@ -33,7 +33,6 @@ def test_double_create(b, user_vk):
     b.write_transaction(tx)
     time.sleep(2)
     tx_returned = b.get_transaction(tx['id'])
-    tx.pop('assignee')
 
     # test that the tx can be queried
     assert tx_returned == tx
