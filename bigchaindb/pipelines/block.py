@@ -42,6 +42,7 @@ class Block:
 
         if tx['assignee'] == self.bigchain.me:
             tx.pop('assignee')
+            tx.pop('assignment_timestamp')
             return tx
 
     def delete_tx(self, tx):
@@ -130,7 +131,8 @@ def initial():
 def get_changefeed():
     """Create and return the changefeed for the backlog."""
 
-    return ChangeFeed('backlog', ChangeFeed.INSERT, prefeed=initial())
+    return ChangeFeed('backlog', ChangeFeed.INSERT | ChangeFeed.UPDATE,
+                      prefeed=initial())
 
 
 def create_pipeline():
