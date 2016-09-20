@@ -103,11 +103,12 @@ def inputs(user_vk):
     # 1. create the genesis block
     b = Bigchain()
     try:
-        b.create_genesis_block()
+        g = b.create_genesis_block()
     except GenesisBlockAlreadyExistsError:
         pass
 
-    # 2. create block with transactions for `USER` to spend
+    # 2. create blocks with transactions for `USER` to spend
+    prev_block_id = g['id']
     for block in range(4):
         transactions = []
         for i in range(10):
@@ -117,3 +118,8 @@ def inputs(user_vk):
 
         block = b.create_block(transactions)
         b.write_block(block, durability='hard')
+
+        # 3. vote the blocks valid, so that the inputs are valid
+        vote = b.vote(block['id'], prev_block_id, True)
+        prev_block_id = block['id']
+        b.write_vote(vote)
