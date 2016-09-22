@@ -542,6 +542,31 @@ class TestTransactionValidation(object):
         assert tx_valid_signed == b.validate_transaction(tx_valid_signed)
         assert tx_valid_signed == b.is_valid_transaction(tx_valid_signed)
 
+    @pytest.mark.usefixtures('inputs')
+    def test_fulfillment_not_in_valid_block(self, b, user_vk, user_sk):
+        input_valid = b.get_owned_ids(user_vk).pop()
+        tx_valid = b.create_transaction(user_vk, user_vk, input_valid, 'TRANSFER')
+
+        tx_valid_signed = b.sign_transaction(tx_valid, user_sk)
+        assert tx_valid_signed == b.validate_transaction(tx_valid_signed)
+
+        # create a transaction that's valid but not in a voted valid block
+        tx = b.create_transaction(b.me, user_vk, None, 'CREATE')
+        tx_signed = b.sign_transaction(tx, b.me_private)
+
+        # create block
+        block = b.create_block([tx_signed])
+        b.write_block(block, durability='hard')
+
+        # create transaction with the undecided input
+        tx_invalid = b.create_transaction(user_vk, user_vk,
+                                          {'cid': 0, 'txid': tx['id']},
+                                          'TRANSFER')
+
+        tx_invalid_signed = b.sign_transaction(tx_invalid, user_sk)
+        with pytest.raises(exceptions.FulfillmentNotInValidBlock):
+            b.validate_transaction(tx_invalid_signed)
+
 
 class TestBlockValidation(object):
     def test_wrong_block_hash(self, b):
